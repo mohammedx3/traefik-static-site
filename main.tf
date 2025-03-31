@@ -42,6 +42,13 @@ resource "helm_release" "traefik" {
       },
       service = {
         type = local.service_type
+      },
+      # Certificate configuration for production, must be set correctly for production.
+      certManager = {
+        letsEncrypt = {
+          email  = var.acme_email
+          server = var.acme_server
+        }
       }
     })
   ]

@@ -29,6 +29,9 @@ This repository contains a Kubernetes-based project to deploy a Traefik reverse 
 - **Terraform**: Version 1.0.0 or later.
 - **kubectl**
 
+#### Helm CRDs
+- Pay attention to CRDs getting installed for cert-manager and traefik, disable/enable them based on the need. 
+
 ## Getting Started
 
 ### 1. Clone the Repository
@@ -124,4 +127,10 @@ spec:
     - http01:
         ingress:
           class: traefik
+```
+
+And the Let's Encrypt configuration parameters must be provided in your Terraform variables:
+```hcl
+acme_email = "user@example.com"
+acme_server = "https://acme-v02.api.letsencrypt.org/directory"
 ```

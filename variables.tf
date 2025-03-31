@@ -41,3 +41,15 @@ variable "secret_text" {
   default     = "This is a secret for dev environment"
   sensitive   = true
 }
+
+variable "acme_email" {
+  description = "Email address for Let's Encrypt notifications"
+  type        = string
+  default     = "user@example.com"
+}
+
+variable "acme_server" {
+  description = "ACME server URL for Let's Encrypt"
+  type        = string
+  default     = "https://acme-v02.api.letsencrypt.org/directory"
+}
