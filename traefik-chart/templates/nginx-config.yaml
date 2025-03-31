@@ -1,0 +1,115 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-config
+data:
+  10-variables.conf.template: |
+    map $host $environment_var {
+      default "${ENVIRONMENT}";
+    }
+    
+    map $host $secret_text_var {
+      default "${SECRET_TEXT}";
+    }
+  
+  index.html: |
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Static Website</title>
+      <style>
+        body {
+          font-family: Arial, sans-serif;
+          margin: 0;
+          padding: 40px;
+          background-color: #f4f4f4;
+          color: #333;
+          line-height: 1.6;
+        }
+        .container {
+          max-width: 800px;
+          margin: 0 auto;
+          background-color: white;
+          padding: 30px;
+          border-radius: 5px;
+          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+          color: #2c3e50;
+          border-bottom: 1px solid #eee;
+          padding-bottom: 10px;
+        }
+        .env {
+          display: inline-block;
+          padding: 5px 10px;
+          border-radius: 3px;
+          font-weight: bold;
+          margin-right: 5px;
+        }
+        .env-dev {
+          background-color: #3498db;
+          color: white;
+        }
+        .env-prod {
+          background-color: #e74c3c;
+          color: white;
+        }
+        .secret {
+          margin-top: 20px;
+          padding: 10px;
+          background-color: #f9f9f9;
+          border-left: 4px solid #ccc;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <h1>Static Website</h1>
+        <p>
+          Hello World, I am on 
+          <span class="env" id="env-span"></span>
+        </p>
+        <div class="secret">
+          <p>This is my secret: <strong id="secret-span"></strong></p>
+        </div>
+      </div>
+      <script>
+        // We'll use server-side includes to get the variables
+        fetch('/get-env-vars')
+          .then(response => response.text())
+          .then(data => {
+            const vars = JSON.parse(data);
+            const envSpan = document.getElementById('env-span');
+            const secretSpan = document.getElementById('secret-span');
+            
+            envSpan.textContent = vars.environment;
+            envSpan.classList.add('env-' + vars.environment);
+            
+            secretSpan.textContent = vars.secret;
+          });
+      </script>
+    </body>
+    </html>
+  
+  default.conf.template: |
+    server {
+        listen       80;
+        listen  [::]:80;
+        server_name  localhost;
+        
+        location / {
+            root   /usr/share/nginx/html;
+            index  index.html index.htm;
+        }
+
+        location = /get-env-vars {
+            default_type application/json;
+            return 200 '{"environment": "$environment_var", "secret": "$secret_text_var"}';
+        }
+        
+        location = /health {
+            access_log off;
+            add_header Content-Type text/plain;
+            return 200 'OK';
+        }
+    }

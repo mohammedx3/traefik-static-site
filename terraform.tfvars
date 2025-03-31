@@ -1,0 +1,6 @@
+kubeconfig_path = "/home/mo/.kube/config"
+cluster_context = "minikube"
+environment     = "dev"
+app_namespace   = "default"
+app_domain      = "app-dev.localhost.direct"
+secret_text     = "This is a secret"

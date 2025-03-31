@@ -1,0 +1,50 @@
+environment: dev # Options: dev, prod
+
+app:
+  name: nginx
+  
+image:
+  repository: nginx
+  tag: 1.25.3-alpine
+  pullPolicy: IfNotPresent
+
+replicaCount: 1
+
+resources:
+  limits:
+    cpu: 200m
+    memory: 256Mi
+  requests:
+    cpu: 50m
+    memory: 64Mi
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 80
+
+secrets:
+  secretText: "This is a secret for dev environment"
+
+certManager:
+  # Only used in dev environment
+  selfSigned:
+    issuerName: selfsigned-issuer
+    certificateName: nginx-tls
+    secretName: nginx-tls
+    duration: 2160h
+    renewBefore: 360h
+  
+  # Only used in prod environment
+  letsEncrypt:
+    issuerName: letsencrypt-issuer
+    email: user@example.com
+    server: https://acme-v02.api.letsencrypt.org/directory
+
+domain: app-dev.localhost.direct
+
+ingress:
+  name: nginx-ingress
+  className: traefik
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
